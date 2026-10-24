@@ -66,11 +66,18 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 cd "$PROJECT_DIR"
 
-# 6. Install npm dependencies
+# 6. Ensure latest updates from GitHub if inside a repo
+if [ -d ".git" ]; then
+    echo -e "${CYAN}[*] Syncing latest updates from GitHub...${NC}"
+    git fetch origin main 2>/dev/null || true
+    git reset --hard origin/main 2>/dev/null || true
+fi
+
+# 7. Install npm dependencies
 echo -e "${CYAN}[*] Installing DroidOS project dependencies...${NC}"
 npm install --no-audit
 
-# 7. Build shared library and dashboard
+# 8. Build shared library and dashboard
 echo -e "${CYAN}[*] Building DroidOS shared packages and React Dashboard...${NC}"
 npm run build
 
