@@ -3,7 +3,7 @@
  * DroidOS CLI Manager
  * Provides management commands for DroidOS in Termux and host systems.
  */
-import { existsSync, readFileSync, writeFileSync, unlinkSync, mkdirSync, createReadStream } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, unlinkSync, mkdirSync, createReadStream, openSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir, networkInterfaces } from 'node:os';
 import { spawn } from 'node:child_process';
