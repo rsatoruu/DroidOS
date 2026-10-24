@@ -5,6 +5,7 @@
  * actually listen on their ports and serve functional web dashboards!
  */
 import http from 'node:http';
+import { existsSync } from 'node:fs';
 import { spawn, type ChildProcess } from 'node:child_process';
 import { logger } from '../logger.js';
 import { getDb } from '../db/index.js';
@@ -567,14 +568,20 @@ export async function startManagedPortService(serviceName: string, port: number)
     return true;
   }
 
-  // If 9router: launch the REAL official 9router application via npx
+  // If 9router: launch the REAL official 9router application
   if (serviceName.toLowerCase().includes('9router') || port === 20128) {
-    logger.info({ service: serviceName, port }, 'Launching real official 9Router application (npx 9router)...');
+    logger.info({ service: serviceName, port }, 'Launching real official 9Router application...');
     try {
-      const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-      const proc = spawn(npxCmd, ['-y', '9router', '-p', String(port), '-H', '0.0.0.0', '-n'], {
+      const hasGlobal9Router = existsSync('/data/data/com.termux/files/usr/bin/9router');
+      const bin = hasGlobal9Router ? '9router' : (process.platform === 'win32' ? 'npx.cmd' : 'npx');
+      const args = hasGlobal9Router
+        ? ['-p', String(port), '-H', '0.0.0.0', '-n']
+        : ['-y', '9router', '-p', String(port), '-H', '0.0.0.0', '-n'];
+
+      const proc = spawn(bin, args, {
         stdio: 'ignore',
         detached: true,
+        shell: true,
       });
       proc.unref();
       activeServers.set(port, { name: serviceName, port, proc, startedAt: new Date() });
