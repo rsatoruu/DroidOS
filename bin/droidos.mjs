@@ -93,7 +93,7 @@ async function cmdStart(args) {
       cwd: ROOT_DIR,
       detached: true,
       stdio: ['ignore', out, err],
-      env: { ...process.env, DROIDOS_PORT: String(DEFAULT_PORT), DROIDOS_DATA_DIR: DATA_DIR },
+      env: { ...process.env, HOST: '0.0.0.0', DROIDOS_HOST: '0.0.0.0', DROIDOS_PORT: String(DEFAULT_PORT), DROIDOS_DATA_DIR: DATA_DIR },
     });
 
     child.unref();
@@ -115,7 +115,7 @@ async function cmdStart(args) {
     const child = spawn(cmd, cmdArgs, {
       cwd: ROOT_DIR,
       stdio: 'inherit',
-      env: { ...process.env, DROIDOS_PORT: String(DEFAULT_PORT), DROIDOS_DATA_DIR: DATA_DIR },
+      env: { ...process.env, HOST: '0.0.0.0', DROIDOS_HOST: '0.0.0.0', DROIDOS_PORT: String(DEFAULT_PORT), DROIDOS_DATA_DIR: DATA_DIR },
     });
 
     writeFileSync(PID_FILE, String(child.pid));

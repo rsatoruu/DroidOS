@@ -81,7 +81,7 @@ export function getConfig(): DroidOSConfig {
 
   const config: DroidOSConfig = {
     port: parseInt(process.env.PORT ?? process.env.DROIDOS_PORT ?? String(DEFAULT_PORT), 10),
-    host: process.env.HOST ?? DEFAULT_HOST,
+    host: process.env.HOST ?? process.env.DROIDOS_HOST ?? '0.0.0.0',
     lanHost: process.env.LAN_HOST ?? '0.0.0.0',
     dataDir,
     jwtSecret: process.env.JWT_SECRET ?? '',

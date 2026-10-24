@@ -3,8 +3,8 @@
 export const DROIDOS_VERSION = '0.1.0';
 export const DROIDOS_NAME = 'DroidOS';
 
-export const DEFAULT_PORT = 7070;
-export const DEFAULT_HOST = '127.0.0.1';
+export const DEFAULT_PORT = 8080;
+export const DEFAULT_HOST = '0.0.0.0';
 export const LAN_HOST = '0.0.0.0';
 
 export const SESSION_COOKIE_NAME = 'droidos_session';
