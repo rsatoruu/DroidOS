@@ -651,8 +651,9 @@ export async function initManagedContainerServices(): Promise<void> {
         AND i.status = 'running' AND d.port IS NOT NULL
     `).all() as any[];
 
+    const serverPort = parseInt(process.env.DROIDOS_PORT || process.env.PORT || '8080', 10);
     for (const r of rows) {
-      if (r.port && r.port > 0) {
+      if (r.port && r.port > 0 && r.port !== serverPort) {
         await startManagedPortService(r.name, r.port);
       }
     }

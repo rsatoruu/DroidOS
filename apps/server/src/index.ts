@@ -18,10 +18,6 @@ async function main() {
   // Initialize SQLite database and run migrations
   await initDatabase(config.dataDir);
 
-  // Initialize simulated container services (e.g. 9router on port 20128, headroom on 8787)
-  const { initManagedContainerServices } = await import('./services/managedContainerRunner.js');
-  await initManagedContainerServices();
-
   // Build Fastify application
   const app = await buildApp(config);
 
@@ -36,6 +32,10 @@ async function main() {
     if (config.host === '0.0.0.0') {
       logger.info('LAN access enabled – open from another device on the same network');
     }
+
+    // Initialize managed container services AFTER the main server has bound its port
+    const { initManagedContainerServices } = await import('./services/managedContainerRunner.js');
+    await initManagedContainerServices();
   } catch (err) {
     logger.error({ err }, 'Failed to start server');
     process.exit(1);
