@@ -106,7 +106,7 @@ export async function systemRoutes(app: FastifyInstance) {
             }
             let table = 'CONTAINER ID   IMAGE                         STATUS         PORTS\n';
             for (const c of containers) {
-              const portStr = c.ports?.map((p) => `0.0.0.0:${p.publicPort}->${p.privatePort}/tcp`).join(', ') || 'N/A';
+              const portStr = c.ports?.map((p: any) => `0.0.0.0:${p.publicPort}->${p.privatePort}/tcp`).join(', ') || 'N/A';
               table += `${c.id.padEnd(14)} ${c.image.padEnd(29)} ${c.status.padEnd(14)} ${portStr}\n`;
             }
             reply.send({
