@@ -1,0 +1,33 @@
+{
+  "name": "droidos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DroidOS – CasaOS-inspired Android home server platform for Termux",
+  "bin": {
+    "droidos": "./bin/droidos.mjs"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/server & npm run dev --workspace=apps/dashboard",
+    "dev:server": "npm run dev --workspace=apps/server",
+    "dev:dashboard": "npm run dev --workspace=apps/dashboard",
+    "build": "npm run build --workspace=packages/shared && npm run build --workspace=apps/server && npm run build --workspace=apps/dashboard",
+    "build:server": "npm run build --workspace=apps/server",
+    "build:dashboard": "npm run build --workspace=apps/dashboard",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config apps/server/jest.config.js",
+    "start": "node apps/server/dist/index.js",
+    "clean": "rimraf apps/*/dist apps/*/node_modules packages/*/dist packages/*/node_modules node_modules"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "rimraf": "^6.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
