@@ -5,13 +5,15 @@
  * actually listen on their ports and serve functional web dashboards!
  */
 import http from 'node:http';
+import { spawn, type ChildProcess } from 'node:child_process';
 import { logger } from '../logger.js';
 import { getDb } from '../db/index.js';
 
 interface RunningService {
   name: string;
   port: number;
-  server: http.Server;
+  server?: http.Server;
+  proc?: ChildProcess;
   startedAt: Date;
 }
 
@@ -558,11 +560,28 @@ function handleRequest(serviceName: string, port: number, req: http.IncomingMess
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Start simulated container service on a specific port
+ * Start container service on a specific port (launches real process when available)
  */
 export async function startManagedPortService(serviceName: string, port: number): Promise<boolean> {
   if (activeServers.has(port)) {
     return true;
+  }
+
+  // If 9router: launch the REAL official 9router application via npx
+  if (serviceName.toLowerCase().includes('9router') || port === 20128) {
+    logger.info({ service: serviceName, port }, 'Launching real official 9Router application (npx 9router)...');
+    try {
+      const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+      const proc = spawn(npxCmd, ['-y', '9router', '-p', String(port), '-H', '0.0.0.0', '-n'], {
+        stdio: 'ignore',
+        detached: true,
+      });
+      proc.unref();
+      activeServers.set(port, { name: serviceName, port, proc, startedAt: new Date() });
+      return true;
+    } catch (err: any) {
+      logger.error({ err: err.message }, 'Failed to spawn real 9router process, falling back');
+    }
   }
 
   return new Promise((resolve) => {
@@ -584,18 +603,30 @@ export async function startManagedPortService(serviceName: string, port: number)
 }
 
 /**
- * Stop simulated container service on a specific port
+ * Stop container service on a specific port
  */
 export async function stopManagedPortService(port: number): Promise<boolean> {
   const existing = activeServers.get(port);
   if (!existing) return true;
-  return new Promise((resolve) => {
-    existing.server.close(() => {
-      activeServers.delete(port);
-      logger.info({ port }, 'Managed container service stopped');
-      resolve(true);
+  if (existing.proc) {
+    try {
+      if (existing.proc.pid) process.kill(existing.proc.pid, 'SIGTERM');
+    } catch {}
+    activeServers.delete(port);
+    logger.info({ port }, 'Managed process stopped');
+    return true;
+  }
+  if (existing.server) {
+    return new Promise((resolve) => {
+      existing.server!.close(() => {
+        activeServers.delete(port);
+        logger.info({ port }, 'Managed container service stopped');
+        resolve(true);
+      });
     });
-  });
+  }
+  activeServers.delete(port);
+  return true;
 }
 
 /**
