@@ -49,7 +49,12 @@ echo -e "${CYAN}[*] Updating package repositories...${NC}"
 pkg update -y || apt update -y
 
 echo -e "${CYAN}[*] Installing Node.js LTS, Git, and build tools...${NC}"
-pkg install -y nodejs-lts git python make clang || apt install -y nodejs git python3 build-essential
+pkg install -y nodejs-lts git python make clang binutils || apt install -y nodejs git python3 build-essential
+
+# Configure node-gyp for Termux native compilation (fixes better-sqlite3 android_ndk_path error)
+mkdir -p "$HOME/.gyp"
+echo "{'variables':{'android_ndk_path':''}}" > "$HOME/.gyp/include.gypi"
+export GYP_DEFINES="android_ndk_path=''"
 
 # Verify node
 NODE_VERSION=$(node -v 2>/dev/null || echo "not found")
